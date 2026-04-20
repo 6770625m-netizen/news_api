@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Ro'yxatdan o'tish — XABAR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0e1318;
+    --bg3: #141b22;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(99,210,255,0.3);
+    --accent: #63d2ff;
+    --accent2: #ff6b6b;
+    --gold: #f0c040;
+    --text: #e8edf2;
+    --text-muted: #6b7a8d;
+    --text-dim: #3a4550;
+    --card: rgba(14,19,24,0.95);
+    --input-bg: rgba(255,255,255,0.04);
+    --success: #4ade80;
+    --error: #ff6b6b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,210,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,210,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(99,210,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    animation: pulse 8s ease-in-out infinite;
+  }
+
+  @keyframes gridMove { to { background-position: 60px 60px; } }
+  @keyframes pulse { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
+
+  /* Language switcher */
+  .lang-bar {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+    background: rgba(14,19,24,0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 4px;
+  }
+
+  .lang-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: #080c10;
+    font-weight: 700;
+  }
+
+  .lang-btn:not(.active):hover { color: var(--text); }
+
+  /* Logo / brand */
+  .brand {
+    position: fixed;
+    top: 28px;
+    left: 32px;
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    text-decoration: none;
+    z-index: 100;
+  }
+
+  .brand span { color: var(--accent); }
+
+  /* Main wrapper */
+  .wrapper {
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    gap: 80px;
+    align-items: center;
+  }
+
+  /* Left panel - hero text */
+  .hero {
+    animation: fadeUp 0.8s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(99,210,255,0.08);
+    border: 1px solid rgba(99,210,255,0.2);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 50px;
+    margin-bottom: 32px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 5vw, 68px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero p {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 420px;
+    font-weight: 300;
+  }
+
+  .stats {
+    display: flex;
+    gap: 40px;
+    margin-top: 48px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Right panel - form card */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    backdrop-filter: blur(20px);
+    position: relative;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.5;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .card-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+
+  /* Role selector */
+  .role-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .role-opt {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .role-opt input {
+    position: absolute;
+    opacity: 0;
+    width: 0; height: 0;
+  }
+
+  .role-face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--input-bg);
+    transition: all 0.25s;
+    cursor: pointer;
+  }
+
+  .role-face .icon {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .role-face .role-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: color 0.25s;
+  }
+
+  .role-opt input:checked + .role-face {
+    border-color: var(--accent);
+    background: rgba(99,210,255,0.08);
+    box-shadow: 0 0 20px rgba(99,210,255,0.1);
+  }
+
+  .role-opt input:checked + .role-face .role-name {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .field input::placeholder { color: var(--text-dim); }
+
+  .field input:focus {
+    border-color: var(--accent);
+    background: rgba(99,210,255,0.04);
+    box-shadow: 0 0 0 3px rgba(99,210,255,0.08);
+  }
+
+  .field input.error-field { border-color: var(--error); }
+
+  /* Two col layout */
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* Company field — hidden by default */
+  .company-wrap {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s;
+    margin-bottom: 0;
+  }
+
+  .company-wrap.visible {
+    max-height: 90px;
+    opacity: 1;
+    margin-bottom: 16px;
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--accent);
+    color: #080c10;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit:hover {
+    background: #8ee4ff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(99,210,255,0.25);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-submit.loading { opacity: 0.7; cursor: wait; }
+
+  /* Login link */
+  .login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .login-link a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .login-link a:hover { text-decoration: underline; }
+
+  /* Alert */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .alert.success {
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: var(--success);
+    display: block;
+  }
+
+  .alert.error {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.3);
+    color: var(--error);
+    display: block;
+  }
+
+  .field-error {
+    font-size: 12px;
+    color: var(--error);
+    margin-top: 5px;
+    display: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .wrapper { grid-template-columns: 1fr; padding: 100px 20px 40px; gap: 40px; }
+    .hero { text-align: center; }
+    .hero p { margin: 0 auto; }
+    .stats { justify-content: center; }
+    .brand { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#" class="brand">XA<span>BAR</span></a>
+
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('uz')">UZ</button>
+  <button class="lang-btn" onclick="setLang('ru')">RU</button>
+  <button class="lang-btn" onclick="setLang('en')">EN</button>
+</div>
+
+<div class="wrapper">
+
+  <!-- Left hero -->
+  <div class="hero">
+    <div class="hero-tag" data-i18n="live">Jonli yangiliklar</div>
+    <h1 data-i18n="headline">So'nggi <em>yangiliklar</em> bir joyda</h1>
+    <p data-i18n="sub">Ishonchli manbalardan eng tezkor va to'liq yangiliklar. Jurnalistlar va o'quvchilar uchun yagona platforma.</p>
+    <div class="stats">
+      <div>
+        <div class="stat-num">12K+</div>
+        <div class="stat-label" data-i18n="readers">O'quvchilar</div>
+      </div>
+      <div>
+        <div class="stat-num">340+</div>
+        <div class="stat-label" data-i18n="journalists">Jurnalistlar</div>
+      </div>
+      <div>
+        <div class="stat-num">50K+</div>
+        <div class="stat-label" data-i18n="articles">Maqolalar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right form card -->
+  <div class="card">
+    <div class="card-title" data-i18n="card-title">Ro'yxatdan o'ting</div>
+    
+
+    <div id="alert-box" class="alert"></div>
+
+    <form id="reg-form" novalidate>
+
+      <!-- Role selector -->
+      <div class="role-selector">
+        <label class="role-opt">
+          <input type="radio" name="role" value="user" checked onchange="onRoleChange()">
+          <div class="role-face">
+            <span class="icon">👤</span>
+            <span class="role-name" data-i18n="role-user">Foydalanuvchi</span>
+          </div>
+        </label>
+        <label class="role-opt">
+          <input type="radio" name="role" value="journalist" onchange="onRoleChange()">
+          <div class="role-face">
+            <span class="icon">✍️</span>
+            <span class="role-name" data-i18n="role-journalist">Jurnalist</span>
+          </div>
+        </label>
+      </div>
+
+      <!-- Name row -->
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="first-name">Ism</label>
+          <input type="text" id="first_name" placeholder="Ali">
+          <div class="field-error" id="err-first_name"></div>
+        </div>
+        <div class="field">
+          <label data-i18n="last-name">Familiya</label>
+          <input type="text" id="last_name" placeholder="Valiyev">
+          <div class="field-error" id="err-last_name"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="username">Foydalanuvchi nomi</label>
+        <input type="text" id="username" placeholder="ali_valiyev">
+        <div class="field-error" id="err-username"></div>
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="ali@example.com">
+        <div class="field-error" id="err-email"></div>
+      </div>
+
+      <!-- Company — only for journalist -->
+      <div class="company-wrap" id="company-wrap">
+        <div class="field">
+          <label data-i18n="company">Kompaniya nomi</label>
+          <input type="text" id="company_name" placeholder="UzReport Media">
+          <div class="field-error" id="err-company_name"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="password">Parol</label>
+          <input type="password" id="password" placeholder="••••••••">
+          <div class="field-error" id="err-password"></div>
+        </div>
+        <div class="field">
+          <label data-i18n="password2">Parolni tasdiqlang</label>
+          <input type="password" id="password2" placeholder="••••••••">
+          <div class="field-error" id="err-password2"></div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submit-btn">
+        <span id="btn-text" data-i18n="register-btn">Ro'yxatdan o'tish</span>
+      </button>
+    </form>
+
+    <div class="login-link">
+      <span data-i18n="have-account">Hisobingiz bormi?</span>
+      <a href="/login/" data-i18n="signin">Kirish</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── i18n ───────────────────────────────────────────────
+const LANGS = {
+  uz: {
+    'live': '🔴  Jonli yangiliklar',
+    'headline': 'So\'nggi <em>yangiliklar</em> bir joyda',
+    'sub': 'Ishonchli manbalardan eng tezkor va to\'liq yangiliklar. Jurnalistlar va o\'quvchilar uchun yagona platforma.',
+    'readers': 'O\'quvchilar',
+    'journalists': 'Jurnalistlar',
+    'articles': 'Maqolalar',
+    'card-title': 'Ro\'yxatdan o\'ting',
+    'card-sub': 'Hisobingiz bormi?',
+    'login-here': 'Kirish',
+    'role-user': 'Foydalanuvchi',
+    'role-journalist': 'Jurnalist',
+    'first-name': 'Ism',
+    'last-name': 'Familiya',
+    'username': 'Foydalanuvchi nomi',
+    'company': 'Kompaniya nomi',
+    'password': 'Parol',
+    'password2': 'Parolni tasdiqlang',
+    'register-btn': 'Ro\'yxatdan o\'tish',
+    'have-account': 'Hisobingiz bormi?',
+    'signin': 'Kirish',
+    'success': '✅ Muvaffaqiyatli ro\'yxatdan o\'tdingiz! Sahifa yuklanmoqda...',
+    'loading': 'Yuklanmoqda...',
+  },
+  ru: {
+    'live': '🔴  Актуальные новости',
+    'headline': 'Последние <em>новости</em> в одном месте',
+    'sub': 'Самые быстрые и полные новости из надёжных источников. Единая платформа для журналистов и читателей.',
+    'readers': 'Читателей',
+    'journalists': 'Журналистов',
+    'articles': 'Статей',
+    'card-title': 'Регистрация',
+    'card-sub': 'Уже есть аккаунт?',
+    'login-here': 'Войти',
+    'role-user': 'Читатель',
+    'role-journalist': 'Журналист',
+    'first-name': 'Имя',
+    'last-name': 'Фамилия',
+    'username': 'Имя пользователя',
+    'company': 'Название компании',
+    'password': 'Пароль',
+    'password2': 'Подтвердите пароль',
+    'register-btn': 'Зарегистрироваться',
+    'have-account': 'Уже есть аккаунт?',
+    'signin': 'Войти',
+    'success': '✅ Регистрация прошла успешно! Загрузка...',
+    'loading': 'Загрузка...',
+  },
+  en: {
+    'live': '🔴  Live News',
+    'headline': 'Latest <em>news</em> in one place',
+    'sub': 'The fastest and most complete news from trusted sources. One platform for journalists and readers alike.',
+    'readers': 'Readers',
+    'journalists': 'Journalists',
+    'articles': 'Articles',
+    'card-title': 'Create account',
+    'card-sub': 'Already have an account?',
+    'login-here': 'Sign in',
+    'role-user': 'Reader',
+    'role-journalist': 'Journalist',
+    'first-name': 'First name',
+    'last-name': 'Last name',
+    'username': 'Username',
+    'company': 'Company name',
+    'password': 'Password',
+    'password2': 'Confirm password',
+    'register-btn': 'Create account',
+    'have-account': 'Already have an account?',
+    'signin': 'Sign in',
+    'success': '✅ Registration successful! Redirecting...',
+    'loading': 'Loading...',
+  }
+};
+
+let currentLang = 'uz';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === lang));
+  const L = LANGS[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (L[key] !== undefined) el.innerHTML = L[key];
+  });
+}
+
+// ─── Role toggle ────────────────────────────────────────
+function onRoleChange() {
+  const role = document.querySelector('input[name="role"]:checked').value;
+  const wrap = document.getElementById('company-wrap');
+  if (role === 'journalist') {
+    wrap.classList.add('visible');
+  } else {
+    wrap.classList.remove('visible');
+    document.getElementById('company_name').value = '';
+  }
+}
+
+// ─── Form submit ─────────────────────────────────────────
+const API_BASE_URL = 'http://127.0.0.1:8000';
+
+document.getElementById('reg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearErrors();
+
+  const role    = document.querySelector('input[name="role"]:checked').value;
+  const payload = {
+    username:     document.getElementById('username').value.trim(),
+    email:        document.getElementById('email').value.trim(),
+    password:     document.getElementById('password').value,
+    password2:    document.getElementById('password2').value,
+    role:         role,
+    first_name:   document.getElementById('first_name').value.trim(),
+    last_name:    document.getElementById('last_name').value.trim(),
+  };
+  if (role === 'journalist') {
+    payload.company_name = document.getElementById('company_name').value.trim();
+  }
+
+  const btn = document.getElementById('submit-btn');
+  const L   = LANGS[currentLang];
+  btn.classList.add('loading');
+  document.getElementById('btn-text').textContent = L.loading;
+
+  try {
+    const res  = await fetch(API_BASE_URL + '/api/auth/register/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      // Token saqlash
+      localStorage.setItem('access',  data.tokens.access);
+      localStorage.setItem('refresh', data.tokens.refresh);
+      localStorage.setItem('role',    data.user.role);
+      localStorage.setItem('username',data.user.username);
+
+      showAlert(L.success, 'success');
+      setTimeout(() => window.location.href = '/home/', 1500);
+    } else {
+      // Field xatolari
+      Object.entries(data).forEach(([field, msgs]) => {
+        const errEl = document.getElementById('err-' + field);
+        const inpEl = document.getElementById(field);
+        const msg   = Array.isArray(msgs) ? msgs[0] : msgs;
+        if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+        if (inpEl) inpEl.classList.add('error-field');
+        if (!errEl) showAlert(msg, 'error');
+      });
+    }
+  } catch (error) {
+    console.error('API Error:', error);
+    showAlert('Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
+  } finally {
+    btn.classList.remove('loading');
+    document.getElementById('btn-text').textContent = L['register-btn'];
+  }
+});
+
+function showAlert(msg, type) {
+  const box = document.getElementById('alert-box');
+  box.textContent = msg;
+  box.className = 'alert ' + type;
+}
+
+function clearErrors() {
+  document.getElementById('alert-box').className = 'alert';
+  document.querySelectorAll('.field-error').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.error-field').forEach(el => el.classList.remove('error-field'));
+}
+</script>
+</body>
+</html>

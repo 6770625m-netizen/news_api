@@ -1,0 +1,277 @@
+```html
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yangilik yaratish — XABAR</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #080c10;
+  --bg3: #141b22;
+  --border: rgba(255,255,255,0.07);
+  --accent: #63d2ff;
+  --text: #e8edf2;
+  --muted: #6b7a8d;
+  --success:#4ade80;
+  --error:#ff6b6b;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif}
+
+.navbar{
+  height:64px;display:flex;align-items:center;
+  padding:0 32px;border-bottom:1px solid var(--border);
+}
+.nav-brand{font-family:'Playfair Display';font-size:22px;font-weight:900;color:#fff;text-decoration:none}
+.nav-brand span{color:var(--accent)}
+
+.container{max-width:900px;margin:40px auto;padding:0 20px}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:30px}
+
+.title{font-family:'Playfair Display';font-size:24px;margin-bottom:10px}
+
+.alert{display:none;padding:12px;border-radius:10px;margin-bottom:15px;font-size:14px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+
+.field input,.field textarea,.field select{
+  width:100%;background:#0e1318;border:1px solid var(--border);
+  border-radius:10px;padding:12px;color:#fff
+}
+
+textarea{min-height:120px}
+
+.btn{background:var(--accent);border:none;padding:12px 25px;border-radius:10px;font-weight:700;cursor:pointer}
+
+.preview{margin-top:10px;width:100%;border-radius:10px}
+
+/* LANG SWITCH */
+.lang-switch{display:flex;gap:10px;margin-bottom:15px}
+.lang-btn{
+  padding:6px 12px;border-radius:8px;border:1px solid var(--border);
+  background:#0e1318;color:#fff;cursor:pointer
+}
+.lang-btn.active{background:var(--accent);color:#000}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+  <a href="/home/" class="nav-brand">XA<span>BAR</span></a>
+</div>
+
+<div class="container">
+<div class="card">
+
+<div class="title">✏️ Yangilik yaratish</div>
+
+<div id="alert" class="alert"></div>
+
+<!-- LANG SWITCH -->
+<div class="lang-switch">
+  <button class="lang-btn" id="btn-uz" onclick="setLang('uz')">UZ</button>
+  <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" id="btn-ru" onclick="setLang('ru')">RU</button>
+</div>
+
+<!-- UZ -->
+<div class="lang lang-uz">
+  <div class="field">
+    <label>Sarlavha</label>
+    <input id="title_uz">
+  </div>
+  <div class="field">
+    <label>Kontent</label>
+    <textarea id="content_uz"></textarea>
+  </div>
+</div>
+
+<!-- EN -->
+<div class="lang lang-en" style="display:none">
+  <div class="field">
+    <label>Title</label>
+    <input id="title_en">
+  </div>
+  <div class="field">
+    <label>Content</label>
+    <textarea id="content_en"></textarea>
+  </div>
+</div>
+
+<!-- RU -->
+<div class="lang lang-ru" style="display:none">
+  <div class="field">
+    <label>Заголовок</label>
+    <input id="title_ru">
+  </div>
+  <div class="field">
+    <label>Контент</label>
+    <textarea id="content_ru"></textarea>
+  </div>
+</div>
+
+<div class="field">
+  <label>Kategoriya</label>
+  <select id="category"></select>
+</div>
+
+<div class="field">
+  <label>Rasm</label>
+  <input type="file" id="image">
+  <img id="imgPreview" class="preview" style="display:none">
+</div>
+
+<div class="field">
+  <label>Video link</label>
+  <input id="video">
+  <div id="videoPreview"></div>
+</div>
+
+<button class="btn" onclick="createNews()">Yuborish</button>
+
+</div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+const token = localStorage.getItem("access");
+const title_uz = document.getElementById("title_uz");
+const title_en = document.getElementById("title_en");
+const title_ru = document.getElementById("title_ru");
+const content_uz = document.getElementById("content_uz");
+const content_en = document.getElementById("content_en");
+const content_ru = document.getElementById("content_ru");
+const category = document.getElementById("category");
+const image = document.getElementById("image");
+const imgPreview = document.getElementById("imgPreview");
+const video = document.getElementById("video");
+const videoPreview = document.getElementById("videoPreview");
+
+if (!token) {
+  window.location.href = "/";
+}
+
+/* ALERT */
+function showAlert(msg, type = "success") {
+  const a = document.getElementById("alert");
+  a.style.display = "block";
+  a.textContent = msg;
+  a.style.background = type === "success" ? "rgba(74,222,128,0.1)" : "rgba(255,107,107,0.1)";
+  a.style.color = type === "success" ? "#4ade80" : "#ff6b6b";
+}
+
+/* LANG */
+function setLang(l) {
+  const lang = ["uz", "en", "ru"].includes(l) ? l : "uz";
+  document.querySelectorAll(".lang").forEach(x => x.style.display = "none");
+  document.querySelector(".lang-" + lang).style.display = "block";
+
+  document.querySelectorAll(".lang-btn").forEach(b => b.classList.remove("active"));
+  const btn = document.getElementById("btn-" + lang);
+  if (btn) btn.classList.add("active");
+
+  localStorage.setItem("lang", lang);
+}
+setLang(localStorage.getItem("lang") || "uz");
+
+/* IMAGE PREVIEW */
+image.addEventListener("change", e => {
+  const f = e.target.files[0];
+  if (!f) {
+    imgPreview.style.display = "none";
+    return;
+  }
+  const r = new FileReader();
+  r.onload = x => {
+    imgPreview.src = x.target.result;
+    imgPreview.style.display = "block";
+  };
+  r.readAsDataURL(f);
+});
+
+/* VIDEO PREVIEW */
+video.addEventListener("input", e => {
+  const url = e.target.value.trim();
+  if (!url) {
+    videoPreview.innerHTML = "";
+    return;
+  }
+
+  const ytMatch = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]+)/);
+  if (ytMatch) {
+    videoPreview.innerHTML = `<iframe class="preview" height="250" src="https://www.youtube.com/embed/${ytMatch[1]}" allowfullscreen></iframe>`;
+  } else if (url.endsWith(".mp4")) {
+    videoPreview.innerHTML = `<video class="preview" controls src="${url}"></video>`;
+  } else {
+    videoPreview.innerHTML = "";
+  }
+});
+
+/* CATEGORY */
+async function loadCategories() {
+  try {
+    const r = await fetch(API + "/api/categories/", { headers: { Authorization: "Bearer " + token } });
+    if (!r.ok) throw new Error("Network response was not OK");
+    const d = await r.json();
+    category.innerHTML = "";
+    d.forEach(c => {
+      const o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.name;
+      category.appendChild(o);
+    });
+  } catch (err) {
+    showAlert("Kategoriya yuklanmadi: " + err.message, "error");
+  }
+}
+loadCategories();
+
+/* CREATE */
+async function createNews() {
+  if (!title_uz.value.trim() || !content_uz.value.trim()) {
+    showAlert("UZ maydonlarni to‘ldir", "error");
+    return;
+  }
+
+  const fd = new FormData();
+  fd.append("title_uz", title_uz.value);
+  fd.append("title_en", title_en.value);
+  fd.append("title_ru", title_ru.value);
+  fd.append("content_uz", content_uz.value);
+  fd.append("content_en", content_en.value);
+  fd.append("content_ru", content_ru.value);
+  fd.append("category", category.value);
+
+  if (image.files[0]) fd.append("image", image.files[0]);
+  if (video.value.trim()) fd.append("video", video.value.trim());
+
+  try {
+    const r = await fetch(API + "/api/news/create/", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token },
+      body: fd
+    });
+
+    if (r.ok) {
+      showAlert("Yangilik muvaffaqiyatli saqlandi.");
+      setTimeout(() => location.href = "/home/", 1200);
+    } else {
+      const data = await r.json().catch(() => null);
+      showAlert(data?.detail || data?.error || "Xatolik yuz berdi", "error");
+    }
+  } catch (err) {
+    showAlert("Server bilan bog'lanishda xatolik: " + err.message, "error");
+  }
+}
+</script>
+
+</body>
+</html>
+```

@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil — XABAR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0e1318;
+    --bg3: #141b22;
+    --bg4: #1a2330;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(99,210,255,0.25);
+    --accent: #63d2ff;
+    --accent2: #ff6b6b;
+    --gold: #f0c040;
+    --green: #4ade80;
+    --text: #e8edf2;
+    --text-muted: #6b7a8d;
+    --text-dim: #2e3a46;
+    --card-bg: rgba(14,19,24,0.9);
+    --success: #4ade80;
+    --error: #ff6b6b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(99,210,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,210,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAVBAR ─────────────────────────────────────────── */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: rgba(8,12,16,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    height: 64px;
+  }
+
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+
+  .nav-brand span { color: var(--accent); }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+  }
+
+  .nav-langs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 3px;
+  }
+
+  .nav-lang {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-lang.active { background: var(--accent); color: #080c10; }
+
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 16px 6px 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    text-decoration: none;
+  }
+  .user-badge:hover { border-color: var(--border-hover); }
+
+  .user-avatar {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #080c10;
+  }
+
+  .user-name { font-size: 13px; font-weight: 500; color: var(--text); }
+
+  .user-role-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 50px;
+    text-transform: uppercase;
+  }
+
+  .role-user-badge     { background: rgba(99,210,255,0.12); color: var(--accent); }
+  .role-journalist-badge { background: rgba(240,192,64,0.12); color: var(--gold); }
+  .role-admin-badge    { background: rgba(255,107,107,0.12); color: var(--error); }
+
+  .btn-logout {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.2);
+    color: var(--error);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { background: rgba(255,107,107,0.2); }
+
+  /* ── MAIN CONTENT ─────────────────────────────────── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* ── LEFT SIDEBAR ─────────────────────────────────── */
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+  /* Profile card */
+  .profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .profile-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .profile-avatar-wrap {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+
+  .profile-avatar {
+    width: 90px; height: 90px;
+    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #080c10;
+    margin: 0 auto;
+    border: 3px solid rgba(99,210,255,0.2);
+  }
+
+  .profile-avatar-ring {
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    background: linear-gradient(135deg, rgba(99,210,255,0.4), rgba(59,130,246,0.2)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+  }
+
+  .profile-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .profile-username {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .profile-role {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 50px;
+    margin-bottom: 20px;
+  }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pstat {
+    text-align: center;
+  }
+
+  .pstat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .pstat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+
+  /* Nav menu */
+  .nav-menu {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s;
+    border-bottom: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .menu-item:last-child { border-bottom: none; }
+  .menu-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .menu-item.active { color: var(--accent); background: rgba(99,210,255,0.05); }
+  .menu-item .menu-icon { font-size: 18px; width: 24px; text-align: center; }
+
+  /* ── RIGHT MAIN ───────────────────────────────────── */
+  .main-panel { display: flex; flex-direction: column; gap: 20px; }
+
+  .panel-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 28px 32px;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .panel-section.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Fields */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .field { margin-bottom: 20px; }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .field input, .field textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    resize: none;
+  }
+
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-muted); opacity: 0.5; }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); background: rgba(99,210,255,0.04); }
+  .field input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Save btn */
+  .btn-save {
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    color: #080c10;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-save:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,210,255,0.25); }
+
+  /* Alert */
+  .inline-alert {
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .inline-alert.success { display: flex; align-items: center; gap: 8px; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); color: var(--success); }
+  .inline-alert.error   { display: flex; align-items: center; gap: 8px; background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); color: var(--error); }
+
+  /* News history cards */
+  .news-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .news-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .news-row:hover { border-color: var(--border-hover); background: rgba(99,210,255,0.03); }
+
+  .news-row-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-dim);
+    line-height: 1;
+    min-width: 36px;
+  }
+
+  .news-row-body { flex: 1; }
+
+  .news-row-cat {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .news-row-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .news-row-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .news-row-status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 50px;
+    margin-left: auto;
+  }
+
+  .status-published { background: rgba(74,222,128,0.1); color: var(--green); }
+  .status-draft     { background: rgba(240,192,64,0.1); color: var(--gold); }
+  .status-review    { background: rgba(99,210,255,0.1); color: var(--accent); }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* Danger zone */
+  .danger-zone {
+    background: rgba(255,107,107,0.04);
+    border: 1px solid rgba(255,107,107,0.15);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .danger-title { font-size: 14px; font-weight: 600; color: var(--error); margin-bottom: 4px; }
+  .danger-desc  { font-size: 13px; color: var(--text-muted); }
+
+  .btn-danger {
+    background: rgba(255,107,107,0.12);
+    border: 1px solid rgba(255,107,107,0.25);
+    color: var(--error);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .btn-danger:hover { background: rgba(255,107,107,0.22); }
+
+  /* Journalist write button */
+  .btn-write {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(99,210,255,0.08);
+    border: 1px solid rgba(99,210,255,0.2);
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .btn-write:hover { background: rgba(99,210,255,0.14); }
+
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-brand" href="/home/">XABAR<span>.</span></a>
+
+  <div class="nav-right">
+    <div class="nav-langs">
+      <button class="nav-lang active" onclick="setLang('uz')">UZ</button>
+      <button class="nav-lang" onclick="setLang('ru')">RU</button>
+      <button class="nav-lang" onclick="setLang('en')">EN</button>
+    </div>
+
+    <div class="user-badge" onclick="window.location.href='/home/'">
+      <div class="user-avatar" id="nav-avatar">?</div>
+      <span class="user-name" id="nav-name">...</span>
+      <span class="user-role-badge role-user-badge" id="nav-role">User</span>
+    </div>
+
+    <button class="btn-logout" onclick="logout()" data-i18n="logout">Chiqish</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="profile-card">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profile-avatar">?</div>
+        <div class="profile-avatar-ring"></div>
+      </div>
+      <div class="profile-name" id="profile-fullname">...</div>
+      <div class="profile-username" id="profile-username">@...</div>
+      <span class="profile-role role-user-badge" id="profile-role-badge">User</span>
+
+      <div class="profile-stats">
+        <div class="pstat">
+          <div class="pstat-num" id="stat-comments">—</div>
+          <div class="pstat-label" data-i18n="stat-comments">Izohlar</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-num" id="stat-articles">—</div>
+          <div class="pstat-label" data-i18n="stat-articles">Maqolalar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav menu -->
+    <div class="nav-menu">
+      <button class="menu-item active" onclick="switchTab('info', this)">
+        <span class="menu-icon">👤</span>
+        <span data-i18n="tab-info">Ma'lumotlar</span>
+      </button>
+      <button class="menu-item" onclick="switchTab('password', this)">
+        <span class="menu-icon">🔒</span>
+        <span data-i18n="tab-password">Parol</span>
+      </button>
+      <button class="menu-item" id="tab-articles-btn" onclick="switchTab('articles', this)" style="display:none">
+        <span class="menu-icon">📝</span>
+        <span data-i18n="tab-articles">Maqolalarim</span>
+      </button>
+      <button class="menu-item" onclick="switchTab('danger', this)">
+        <span class="menu-icon">⚠️</span>
+        <span data-i18n="tab-danger">Xavfli zona</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main panels -->
+  <div class="main-panel">
+
+    <!-- Info panel -->
+    <div class="panel-section active" id="panel-info">
+      <div class="section-title" data-i18n="section-info">Shaxsiy ma'lumotlar</div>
+      <div id="alert-info" class="inline-alert"></div>
+
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="first-name">Ism</label>
+          <input type="text" id="first_name" placeholder="Ali">
+        </div>
+        <div class="field">
+          <label data-i18n="last-name">Familiya</label>
+          <input type="text" id="last_name" placeholder="Valiyev">
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="username-label">Foydalanuvchi nomi</label>
+        <input type="text" id="username" placeholder="ali_valiyev" disabled>
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="ali@example.com">
+      </div>
+
+      <div class="field" id="company-field" style="display:none">
+        <label data-i18n="company">Kompaniya nomi</label>
+        <input type="text" id="company_name" placeholder="UzReport Media">
+      </div>
+
+      <div class="field">
+        <label data-i18n="bio">Bio</label>
+        <textarea id="bio" rows="3" placeholder="O'zingiz haqingizda qisqacha..."></textarea>
+      </div>
+
+      <button class="btn-save" onclick="saveInfo()" data-i18n="save-btn">Saqlash</button>
+    </div>
+
+    <!-- Password panel -->
+    <div class="panel-section" id="panel-password">
+      <div class="section-title" data-i18n="section-password">Parolni o'zgartirish</div>
+      <div id="alert-pass" class="inline-alert"></div>
+
+      <div class="field">
+        <label data-i18n="old-password">Joriy parol</label>
+        <input type="password" id="old_password" placeholder="••••••••">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="new-password">Yangi parol</label>
+          <input type="password" id="new_password" placeholder="••••••••">
+        </div>
+        <div class="field">
+          <label data-i18n="confirm-password">Tasdiqlang</label>
+          <input type="password" id="confirm_password" placeholder="••••••••">
+        </div>
+      </div>
+
+      <button class="btn-save" onclick="savePassword()" data-i18n="change-pass-btn">Parolni o'zgartirish</button>
+    </div>
+
+    <!-- Articles panel (journalist/admin only) -->
+    <div class="panel-section" id="panel-articles">
+      <div class="section-title" data-i18n="section-articles">Mening maqolalarim</div>
+
+      <button class="btn-write" onclick="window.location.href='/yangilik/'">
+        ✍️ <span data-i18n="write-article">Yangi maqola yozish</span>
+      </button>
+
+      <div style="margin-top: 20px;">
+        <div id="articles-list" class="news-list">
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div data-i18n="no-articles">Hali maqola yo'q.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger zone panel -->
+    <div class="panel-section" id="panel-danger">
+      <div class="section-title" data-i18n="section-danger">Xavfli zona</div>
+
+      <div class="danger-zone">
+        <div>
+          <div class="danger-title" data-i18n="delete-title">Hisobni o'chirish</div>
+          <div class="danger-desc" data-i18n="delete-desc">Bu amalni qaytarib bo'lmaydi. Barcha ma'lumotlaringiz o'chib ketadi.</div>
+        </div>
+        <button class="btn-danger" onclick="confirmDelete()" data-i18n="delete-btn">O'chirish</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── i18n ───────────────────────────────────────────────
+const LANGS = {
+  uz: {
+    'logout': 'Chiqish',
+    'tab-info': 'Ma\'lumotlar',
+    'tab-password': 'Parol',
+    'tab-articles': 'Maqolalarim',
+    'tab-danger': 'Xavfli zona',
+    'stat-comments': 'Izohlar',
+    'stat-articles': 'Maqolalar',
+    'section-info': 'Shaxsiy ma\'lumotlar',
+    'section-password': 'Parolni o\'zgartirish',
+    'section-articles': 'Mening maqolalarim',
+    'section-danger': 'Xavfli zona',
+    'first-name': 'Ism',
+    'last-name': 'Familiya',
+    'username-label': 'Foydalanuvchi nomi',
+    'company': 'Kompaniya nomi',
+    'bio': 'Bio',
+    'save-btn': 'Saqlash',
+    'old-password': 'Joriy parol',
+    'new-password': 'Yangi parol',
+    'confirm-password': 'Tasdiqlang',
+    'change-pass-btn': 'Parolni o\'zgartirish',
+    'write-article': 'Yangi maqola yozish',
+    'no-articles': 'Hali maqola yo\'q.',
+    'delete-title': 'Hisobni o\'chirish',
+    'delete-desc': 'Bu amalni qaytarib bo\'lmaydi. Barcha ma\'lumotlaringiz o\'chib ketadi.',
+    'delete-btn': 'O\'chirish',
+    'role-user': 'Foydalanuvchi',
+    'role-journalist': 'Jurnalist',
+    'role-admin': 'Admin',
+    'reader': 'O\'quvchi',
+    'saved-ok': '✅ Ma\'lumotlar saqlandi.',
+    'pass-ok': '✅ Parol muvaffaqiyatli o\'zgartirildi.',
+    'pass-mismatch': 'Parollar mos emas.',
+    'pass-short': 'Parol kamida 8 ta belgidan iborat bo\'lishi kerak.',
+    'delete-confirm': 'Rostdan ham hisobingizni o\'chirmoqchimisiz? Bu amalni qaytarib bo\'lmaydi!',
+    'err-server': 'Server bilan bog\'lanishda xatolik.',
+    'loading': 'Yuklanmoqda...',
+  },
+  ru: {
+    'logout': 'Выйти',
+    'tab-info': 'Данные',
+    'tab-password': 'Пароль',
+    'tab-articles': 'Мои статьи',
+    'tab-danger': 'Опасная зона',
+    'stat-comments': 'Комментарии',
+    'stat-articles': 'Статьи',
+    'section-info': 'Личные данные',
+    'section-password': 'Смена пароля',
+    'section-articles': 'Мои статьи',
+    'section-danger': 'Опасная зона',
+    'first-name': 'Имя',
+    'last-name': 'Фамилия',
+    'username-label': 'Имя пользователя',
+    'company': 'Название компании',
+    'bio': 'О себе',
+    'save-btn': 'Сохранить',
+    'old-password': 'Текущий пароль',
+    'new-password': 'Новый пароль',
+    'confirm-password': 'Подтвердите',
+    'change-pass-btn': 'Изменить пароль',
+    'write-article': 'Написать статью',
+    'no-articles': 'Статей пока нет.',
+    'delete-title': 'Удалить аккаунт',
+    'delete-desc': 'Это действие необратимо. Все ваши данные будут удалены.',
+    'delete-btn': 'Удалить',
+    'role-user': 'Читатель',
+    'role-journalist': 'Журналист',
+    'role-admin': 'Админ',
+    'saved-ok': '✅ Данные сохранены.',
+    'pass-ok': '✅ Пароль успешно изменён.',
+    'pass-mismatch': 'Пароли не совпадают.',
+    'pass-short': 'Пароль должен содержать минимум 8 символов.',
+    'delete-confirm': 'Вы уверены, что хотите удалить аккаунт? Это необратимо!',
+    'err-server': 'Ошибка соединения с сервером.',
+    'loading': 'Загрузка...',
+  },
+  en: {
+    'logout': 'Sign out',
+    'tab-info': 'Profile',
+    'tab-password': 'Password',
+    'tab-articles': 'My Articles',
+    'tab-danger': 'Danger zone',
+    'stat-comments': 'Comments',
+    'stat-articles': 'Articles',
+    'section-info': 'Personal info',
+    'section-password': 'Change password',
+    'section-articles': 'My articles',
+    'section-danger': 'Danger zone',
+    'first-name': 'First name',
+    'last-name': 'Last name',
+    'username-label': 'Username',
+    'company': 'Company name',
+    'bio': 'Bio',
+    'save-btn': 'Save',
+    'old-password': 'Current password',
+    'new-password': 'New password',
+    'confirm-password': 'Confirm',
+    'change-pass-btn': 'Change password',
+    'write-article': 'Write new article',
+    'no-articles': 'No articles yet.',
+    'delete-title': 'Delete account',
+    'delete-desc': 'This action is irreversible. All your data will be permanently deleted.',
+    'delete-btn': 'Delete',
+    'role-user': 'Reader',
+    'role-journalist': 'Journalist',
+    'role-admin': 'Admin',
+    'saved-ok': '✅ Profile saved.',
+    'pass-ok': '✅ Password changed successfully.',
+    'pass-mismatch': 'Passwords do not match.',
+    'pass-short': 'Password must be at least 8 characters.',
+    'delete-confirm': 'Are you sure you want to delete your account? This cannot be undone!',
+    'err-server': 'Server connection error.',
+    'loading': 'Loading...',
+  }
+};
+
+let currentLang = 'uz';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.nav-lang').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase() === lang));
+  const L = LANGS[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (L[key] !== undefined) el.innerHTML = L[key];
+  });
+}
+
+// ─── Auth ─────────────────────────────────────────────
+const token    = localStorage.getItem('access');
+const userRole = localStorage.getItem('role') || 'user';
+const userName = localStorage.getItem('username') || '?';
+
+if (!token) window.location.href = '/';
+
+// Nav
+document.getElementById('nav-avatar').textContent = userName[0]?.toUpperCase() || '?';
+document.getElementById('nav-name').textContent    = userName;
+const navRoleEl = document.getElementById('nav-role');
+const roleLabels = { user: {uz:'Foydalanuvchi',ru:'Читатель',en:'Reader'}, journalist: {uz:'Jurnalist',ru:'Журналист',en:'Journalist'}, admin: {uz:'Admin',ru:'Админ',en:'Admin'} };
+navRoleEl.textContent  = (roleLabels[userRole] || roleLabels.user)[currentLang] || userRole;
+navRoleEl.className    = 'user-role-badge role-' + userRole + '-badge';
+
+// Profile
+document.getElementById('profile-avatar').textContent  = userName[0]?.toUpperCase() || '?';
+document.getElementById('profile-username').textContent = '@' + userName;
+const pRoleEl = document.getElementById('profile-role-badge');
+pRoleEl.textContent = (roleLabels[userRole] || roleLabels.user)[currentLang] || userRole;
+pRoleEl.className   = 'profile-role role-' + userRole + '-badge';
+
+// Show journalist menu item
+if (userRole === 'journalist' || userRole === 'admin') {
+  document.getElementById('tab-articles-btn').style.display = 'flex';
+  document.getElementById('company-field').style.display    = 'block';
+}
+
+function logout() {
+  const refresh = localStorage.getItem('refresh');
+  if (refresh) {
+    fetch('/api/auth/logout/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ refresh })
+    }).finally(() => { localStorage.clear(); window.location.href = '/'; });
+  } else {
+    localStorage.clear();
+    window.location.href = '/';
+  }
+}
+
+// ─── Tab switching ────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.panel-section').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  btn.classList.add('active');
+
+  if (tab === 'articles') loadMyArticles();
+}
+
+// ─── Load profile ────────────────────────────────────
+async function loadProfile() {
+  try {
+    const res  = await fetch('/api/auth/profile/', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+
+    document.getElementById('first_name').value  = data.first_name  || '';
+    document.getElementById('last_name').value   = data.last_name   || '';
+    document.getElementById('username').value    = data.username    || userName;
+    document.getElementById('email').value       = data.email       || '';
+    document.getElementById('bio').value         = data.bio         || '';
+    if (data.company_name) document.getElementById('company_name').value = data.company_name;
+
+    // Full name
+    const fullName = [data.first_name, data.last_name].filter(Boolean).join(' ') || userName;
+    document.getElementById('profile-fullname').textContent = fullName;
+    document.getElementById('profile-avatar').textContent   = fullName[0]?.toUpperCase() || '?';
+    document.getElementById('nav-avatar').textContent       = fullName[0]?.toUpperCase() || '?';
+
+    // Stats
+    document.getElementById('stat-comments').textContent = data.comments_count ?? '0';
+    document.getElementById('stat-articles').textContent = data.articles_count ?? '0';
+  } catch {}
+}
+
+// ─── Save info ───────────────────────────────────────
+async function saveInfo() {
+  const L = LANGS[currentLang];
+  const alertEl = document.getElementById('alert-info');
+  alertEl.className = 'inline-alert';
+
+  const payload = {
+    first_name: document.getElementById('first_name').value.trim(),
+    last_name:  document.getElementById('last_name').value.trim(),
+    email:      document.getElementById('email').value.trim(),
+    bio:        document.getElementById('bio').value.trim(),
+  };
+  if (userRole === 'journalist' || userRole === 'admin') {
+    payload.company_name = document.getElementById('company_name').value.trim();
+  }
+
+  try {
+    const res = await fetch('/api/auth/profile/', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) {
+      alertEl.textContent = L['saved-ok'];
+      alertEl.className   = 'inline-alert success';
+      setTimeout(() => { alertEl.className = 'inline-alert'; }, 3000);
+    } else {
+      alertEl.textContent = L['err-server'];
+      alertEl.className   = 'inline-alert error';
+    }
+  } catch {
+    alertEl.textContent = L['err-server'];
+    alertEl.className   = 'inline-alert error';
+  }
+}
+
+// ─── Save password ───────────────────────────────────
+async function savePassword() {
+  const L = LANGS[currentLang];
+  const alertEl = document.getElementById('alert-pass');
+  alertEl.className = 'inline-alert';
+
+  const old_pass = document.getElementById('old_password').value;
+  const new_pass = document.getElementById('new_password').value;
+  const confirm  = document.getElementById('confirm_password').value;
+
+  if (new_pass !== confirm) {
+    alertEl.textContent = L['pass-mismatch'];
+    alertEl.className   = 'inline-alert error';
+    return;
+  }
+  if (new_pass.length < 8) {
+    alertEl.textContent = L['pass-short'];
+    alertEl.className   = 'inline-alert error';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/auth/change-password/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ old_password: old_pass, new_password: new_pass, confirm_password: confirm }),
+    });
+    if (res.ok) {
+      alertEl.textContent = L['pass-ok'];
+      alertEl.className   = 'inline-alert success';
+      document.getElementById('old_password').value     = '';
+      document.getElementById('new_password').value     = '';
+      document.getElementById('confirm_password').value = '';
+      setTimeout(() => { alertEl.className = 'inline-alert'; }, 3000);
+    } else {
+      const data = await res.json();
+      alertEl.textContent = data.detail || L['err-server'];
+      alertEl.className   = 'inline-alert error';
+    }
+  } catch {
+    alertEl.textContent = L['err-server'];
+    alertEl.className   = 'inline-alert error';
+  }
+}
+
+// ─── Load my articles (journalist) ──────────────────
+async function loadMyArticles() {
+  const L = LANGS[currentLang];
+  const list = document.getElementById('articles-list');
+  list.innerHTML = `<div style="color:var(--text-muted);font-size:13px;padding:16px 0">${L['loading']}</div>`;
+
+  try {
+    const res  = await fetch('/api/news/my/', { headers: { 'Authorization': 'Bearer ' + token } });
+    const data = await res.json();
+    const items = data.results || data;
+
+    if (!items.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div>${L['no-articles']}</div></div>`;
+      return;
+    }
+
+    const statusMap = { published:'published', draft:'draft', review:'review', pending:'review' };
+    const statusLabel = { published:{uz:'Chop etilgan',ru:'Опубликовано',en:'Published'}, draft:{uz:'Qoralama',ru:'Черновик',en:'Draft'}, review:{uz:'Ko\'rib chiqilmoqda',ru:'На проверке',en:'In review'} };
+
+    list.innerHTML = items.map((n, i) => {
+      const st = statusMap[n.status] || 'draft';
+      return `
+        <div class="news-row">
+          <div class="news-row-num">${String(i + 1).padStart(2, '0')}</div>
+          <div class="news-row-body">
+            <div class="news-row-cat">${n.category?.name || 'Yangilik'}</div>
+            <div class="news-row-title">${n.title}</div>
+            <div class="news-row-meta">
+              <span>👁 ${n.views_count || 0}</span>
+              <span>💬 ${n.comments_count || 0}</span>
+              <span>${new Date(n.created_at).toLocaleDateString()}</span>
+              <span class="news-row-status status-${st}">${(statusLabel[st] || statusLabel.draft)[currentLang]}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div>${LANGS[currentLang]['err-server']}</div></div>`;
+  }
+}
+
+// ─── Delete account ──────────────────────────────────
+function confirmDelete() {
+  const L = LANGS[currentLang];
+  if (!confirm(L['delete-confirm'])) return;
+
+  fetch('/api/auth/delete-account/', {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + token },
+  }).finally(() => {
+    localStorage.clear();
+    window.location.href = '/';
+  });
+}
+
+// ─── Init ────────────────────────────────────────────
+loadProfile();
+</script>
+</body>
+</html>
