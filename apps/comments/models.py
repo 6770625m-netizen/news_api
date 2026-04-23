@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings
+import django.conf
 from apps.news.models import News
 
 
@@ -10,7 +10,7 @@ class Comment(models.Model):
         related_name='comments',
     )
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        django.conf.settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='comments',
     )

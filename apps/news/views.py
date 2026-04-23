@@ -15,7 +15,7 @@ from apps.accounts.permissions import IsJournalist, IsAdmin, IsNotBlocked
 
 
 class CategoryListView(generics.ListAPIView):
-    
+    pagination_class = None
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
@@ -24,7 +24,7 @@ class CategoryListView(generics.ListAPIView):
 class NewsListView(generics.ListAPIView):
     
     serializer_class = NewsListSerializer
-    permission_classes = [IsAuthenticated, IsNotBlocked]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         qs = News.objects.filter(status=News.STATUS_PUBLISHED).select_related('author', 'category')
@@ -40,13 +40,13 @@ class NewsListView(generics.ListAPIView):
 class NewsDetailView(generics.RetrieveAPIView):
     
     serializer_class = NewsDetailSerializer
-    permission_classes = [IsAuthenticated, IsNotBlocked]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_admin:
+        if user.is_authenticated and user.is_admin:
             return News.objects.all()
-        if user.is_journalist:
+        if user.is_authenticated and user.is_journalist:
             
             return News.objects.filter(status=News.STATUS_PUBLISHED) | News.objects.filter(author=user)
         return News.objects.filter(status=News.STATUS_PUBLISHED)

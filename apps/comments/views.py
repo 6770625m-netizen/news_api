@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 
 from .models import Comment
@@ -11,9 +11,9 @@ from apps.news.models import News
 
 
 class CommentListView(generics.ListAPIView):
-    
+    authentication_classes = []
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsNotBlocked]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         news_id = self.kwargs['news_id']

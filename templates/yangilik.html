@@ -220,8 +220,9 @@ async function loadCategories() {
     const r = await fetch(API + "/api/categories/", { headers: { Authorization: "Bearer " + token } });
     if (!r.ok) throw new Error("Network response was not OK");
     const d = await r.json();
+    const categories = Array.isArray(d) ? d : d.results || [];
     category.innerHTML = "";
-    d.forEach(c => {
+    categories.forEach(c => {
       const o = document.createElement("option");
       o.value = c.id;
       o.textContent = c.name;
@@ -235,22 +236,21 @@ loadCategories();
 
 /* CREATE */
 async function createNews() {
-  if (!title_uz.value.trim() || !content_uz.value.trim()) {
-    showAlert("UZ maydonlarni to‘ldir", "error");
+  const lang = localStorage.getItem("lang") || "uz";
+  const title = lang === "en" ? title_en.value : lang === "ru" ? title_ru.value : title_uz.value;
+  const content = lang === "en" ? content_en.value : lang === "ru" ? content_ru.value : content_uz.value;
+
+  if (!title.trim() || !content.trim()) {
+    showAlert("Iltimos, sarlavha va kontentni to‘ldiring", "error");
     return;
   }
 
   const fd = new FormData();
-  fd.append("title_uz", title_uz.value);
-  fd.append("title_en", title_en.value);
-  fd.append("title_ru", title_ru.value);
-  fd.append("content_uz", content_uz.value);
-  fd.append("content_en", content_en.value);
-  fd.append("content_ru", content_ru.value);
-  fd.append("category", category.value);
+  fd.append("title", title);
+  fd.append("content", content);
+  if (category.value) fd.append("category", category.value);
 
   if (image.files[0]) fd.append("image", image.files[0]);
-  if (video.value.trim()) fd.append("video", video.value.trim());
 
   try {
     const r = await fetch(API + "/api/news/create/", {

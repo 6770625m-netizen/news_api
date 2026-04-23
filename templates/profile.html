@@ -871,6 +871,12 @@ if (userRole === 'journalist' || userRole === 'admin') {
   document.getElementById('company-field').style.display    = 'block';
 }
 
+// Open articles tab when coming from another page
+if (window.location.hash === '#articles') {
+  const btn = document.getElementById('tab-articles-btn');
+  if (btn) switchTab('articles', btn);
+}
+
 function logout() {
   const refresh = localStorage.getItem('refresh');
   if (refresh) {

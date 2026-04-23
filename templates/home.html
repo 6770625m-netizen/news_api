@@ -885,8 +885,8 @@
     <!-- Journalist panel -->
     <div class="sidebar-card j-panel" id="j-panel">
       <div class="sidebar-title" data-i18n="my-panel">Mening panel</div>
-      <button class="btn-create" onclick="showCreateModal()" data-i18n="create-news">✏️ Yangilik yaratish</button>
-      <button class="btn-create" onclick="window.location.href='#my-news'" style="background:rgba(240,192,64,0.08);border-color:rgba(240,192,64,0.2);color:var(--gold)" data-i18n="my-news">📋 Mening yangiliklarim</button>
+      <button class="btn-create" onclick="window.location.href='/yangilik/'" data-i18n="create-news">✏️ Yangilik yaratish</button>
+      <button class="btn-create" onclick="window.location.href='/profile/#articles'" style="background:rgba(240,192,64,0.08);border-color:rgba(240,192,64,0.2);color:var(--gold)" data-i18n="my-news">📋 Mening yangiliklarим</button>
     </div>
 
     <!-- Trending -->
@@ -1030,12 +1030,13 @@ let currentCat   = null;
 let searchQuery  = '';
 let currentNewsId = null;
 
-const headers = {
-  'Content-Type': 'application/json',
-  'Authorization': 'Bearer ' + token
-};
+const API_BASE_URL = window.location.origin;
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+function getHeaders() {
+  const hdrs = { 'Content-Type': 'application/json' };
+  if (token) hdrs.Authorization = 'Bearer ' + token;
+  return hdrs;
+}
 
 function fmtDate(d) {
   return new Date(d).toLocaleDateString(currentLang === 'uz' ? 'uz-UZ' : currentLang === 'ru' ? 'ru-RU' : 'en-US', { day:'numeric', month:'short', year:'numeric' });
@@ -1044,7 +1045,7 @@ function fmtDate(d) {
 // ─── Load categories ─────────────────────────────────────
 async function loadCategories() {
   try {
-    const res  = await fetch(API_BASE_URL + '/api/categories/', { headers });
+    const res  = await fetch(API_BASE_URL + '/api/categories/', { headers: getHeaders() });
     const data = await res.json();
     const bar  = document.getElementById('cat-bar');
     data.forEach(cat => {
@@ -1077,7 +1078,7 @@ async function loadNews(reset = false) {
   if (searchQuery)  url += `&search=${encodeURIComponent(searchQuery)}`;
 
   try {
-    const res  = await fetch(url, { headers });
+    const res  = await fetch(url, { headers: getHeaders() });
     if (res.status === 401) { localStorage.clear(); window.location.href = '/'; return; }
     const data = await res.json();
 
@@ -1213,7 +1214,12 @@ async function loadComments(newsId) {
   const list = document.getElementById('comments-list');
   list.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Yuklanmoqda...</div>';
   try {
-    const res  = await fetch(`${API_BASE_URL}/api/news/${newsId}/comments/`, { headers });
+    const res  = await fetch(`${API_BASE_URL}/api/news/${newsId}/comments/`, { headers: getHeaders() });
+    if (res.status === 401) {
+      localStorage.clear();
+      window.location.href = '/';
+      return;
+    }
     const data = await res.json();
     const items = data.results || data;
 
@@ -1244,14 +1250,21 @@ async function sendComment() {
   try {
     const res = await fetch(API_BASE_URL + '/api/comments/create/', {
       method: 'POST',
-      headers,
+      headers: getHeaders(),
       body: JSON.stringify({ news: currentNewsId, text })
     });
+    if (res.status === 401) {
+      localStorage.clear();
+      window.location.href = '/';
+      return;
+    }
     if (res.ok) {
       input.value = '';
       await loadComments(currentNewsId);
     }
-  } catch {}
+  } catch {
+    console.error('Comment submission failed');
+  }
 }
 
 // ─── Init ────────────────────────────────────────────────

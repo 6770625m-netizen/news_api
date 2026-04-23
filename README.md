@@ -249,3 +249,7 @@ news_api/
 - Har bir so'rovda `IsNotBlocked` tekshiruvi
 - Admin roli API orqali **hech qachon** berilmaydi
 - Parol Django standart validatorlari orqali tekshiriladi
+
+wait-for-it.sh fayl vazifasi 
+
+Docker Compose bir vaqtda barcha konteynerlarni ishga tushiradi, lekin db konteyneri tayyor bo'lishidan oldin web konteyneri ishga tushib ketishi mumkin. Natijada xatolik yuzaga keladi:
