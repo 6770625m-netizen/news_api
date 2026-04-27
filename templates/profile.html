@@ -922,7 +922,20 @@ async function loadProfile() {
 
     // Stats
     document.getElementById('stat-comments').textContent = data.comments_count ?? '0';
-    document.getElementById('stat-articles').textContent = data.articles_count ?? '0';
+    
+    // Count articles from /api/news/my/
+    if (userRole === 'journalist' || userRole === 'admin') {
+      try {
+        const newsRes = await fetch('/api/news/my/', { headers: { 'Authorization': 'Bearer ' + token } });
+        const newsData = await newsRes.json();
+        const articlesCount = (newsData.results || newsData || []).length;
+        document.getElementById('stat-articles').textContent = articlesCount;
+      } catch {
+        document.getElementById('stat-articles').textContent = '0';
+      }
+    } else {
+      document.getElementById('stat-articles').textContent = '0';
+    }
   } catch {}
 }
 
