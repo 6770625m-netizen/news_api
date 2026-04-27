@@ -1145,9 +1145,12 @@ function renderNews(items, reset) {
     card.style.animationDelay = (idx * 0.08) + 's';
 
     const excerpt = n.content ? n.content.substring(0, 120) + '...' : '';
+    const imageUrl = n.image
+      ? (n.image.startsWith('http') ? n.image : API_BASE_URL + n.image)
+      : null;
     card.innerHTML = `
       <div class="card-img-wrap">
-        ${n.image ? `<img src="${API_BASE_URL}${n.image}" alt="${n.title}" onerror="this.parentElement.innerHTML='${emojis[idx%8]}'">` : emojis[idx % 8]}
+        ${imageUrl ? `<img src="${imageUrl}" alt="${n.title}" onerror="this.parentElement.innerHTML='${emojis[idx%8]}'">` : emojis[idx % 8]}
       </div>
       <div class="card-body">
         <span class="news-cat-tag">${n.category?.name || 'Yangilik'}</span>
