@@ -20,7 +20,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - news_network   # ✅ BU QATOR YETISHMAYOTGAN EDI
+      - news_network   
 
   web:
     build: .
